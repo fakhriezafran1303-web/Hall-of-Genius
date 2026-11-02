@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri Tokoh & Penemu Dunia - Arsip Edukasi</title>
+    <!-- Memuat Google Font Klasik / Dokumen Tua -->
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #0b0c10;
+            color: #c5c6c7;
+            font-family: 'Courier Prime', Courier, monospace;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px dashed #45a29e;
+            padding-bottom: 15px;
+            width: 100%;
+            max-width: 1100px;
+        }
+        h1 {
+            font-family: 'Special Elite', cursive;
+            color: #66fcf1;
+            font-size: 28px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.4);
+        }
+        p.subtitle {
+            font-size: 13px;
+            color: #8c9298;
+        }
+
+        /* Tombol Filter Kategori */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 1100px;
+        }
+        .filter-btn {
+            background: rgba(31, 40, 51, 0.8);
+            border: 1px solid #45a29e;
+            color: #66fcf1;
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Courier Prime', Courier, monospace;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #45a29e;
+            color: #0b0c10;
+            border-color: #66fcf1;
+            font-weight: bold;
+        }
+
+        /* Container Galeri Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 40px;
+        }
+
+        /* Kartu Tokoh */
+        .figure-card {
+            background: rgba(31, 40, 51, 0.6);
+            border: 1px solid #45a29e;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+        }
+        .figure-card:hover {
+            transform: translateY(-5px);
+            border-color: #66fcf1;
+            box-shadow: 0 6px 20px rgba(102, 252, 241, 0.3);
+            background: rgba(31, 40, 51, 0.9);
+        }
+
+        .figure-img-wrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border: 1px solid #1f2833;
+        }
+        .figure-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(80%) contrast(120%);
+            transition: 0.4s;
+        }
+        .figure-card:hover img {
+            filter: grayscale(0%) contrast(100%);
+            transform: scale(1.05);
+        }
+
+        .figure-name {
+            font-family: 'Special Elite', cursive;
+            color: #66fcf1;
+            font-size: 15px;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .figure-era {
+            font-size: 11px;
+            color: #f39c12;
+            text-align: center;
+        }
+
+        /* Overlay Jendela Penjelasan */
+        #detailOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 12, 16, 0.92);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .overlay-content {
+            background: #1f2833;
+            border: 2px solid #66fcf1;
+            border-radius: 8px;
+            max-width: 650px;
+            width: 100%;
+            padding: 25px;
+            position: relative;
+            box-shadow: 0 0 40px rgba(102, 252, 241, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 18px;
+            background: #c0392b;
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .close-btn:hover { background: #e74c3c; transform: scale(1.1); }
+
+        .overlay-header {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            border-bottom: 1px dashed #45a29e;
+            padding-bottom: 15px;
+        }
+        .overlay-img {
+            width: 130px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid #66fcf1;
+        }
+        .overlay-titles h2 {
+            font-family: 'Special Elite', cursive;
+            color: #66fcf1;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        .overlay-titles .lifespan {
+            font-size: 13px;
+            color: #f39c12;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .overlay-titles .field {
+            font-size: 12px;
+            color: #2ecc71;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-section h3 {
+            font-family: 'Special Elite', cursive;
+            color: #45a29e;
+            font-size: 14px;
+            margin-bottom: 5px;
+            border-left: 3px solid #66fcf1;
+            padding-left: 8px;
+        }
+        .info-section p {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #c5c6c7;
+        }
+        .quote-box {
+            font-style: italic;
+            color: #f39c12;
+            background: rgba(11, 12, 16, 0.5);
+            padding: 8px 12px;
+            border-left: 3px solid #f39c12;
+            font-size: 12px;
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            font-size: 11px;
+            color: #8c9298;
+            border-top: 1px solid #1f2833;
+            padding-top: 15px;
+            width: 100%;
+            max-width: 1100px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>ARSIP TOKOH & PENEMU DUNIA</h1>
+        <p class="subtitle">Edukasi & Penghormatan untuk para pemikir, penjelajah antariksa, dan perancang peradaban.</p>
+    </header>
+
+    <!-- Tombol Filter Kategori -->
+    <div class="filter-container">
+        <button class="filter-btn active" onclick="filterGallery('all', this)">SEMUA TOKOH</button>
+        <button class="filter-btn" onclick="filterGallery('sains', this)">SAINS & MATEMATIKA</button>
+        <button class="filter-btn" onclick="filterGallery('antariksa', this)">PENJELAJAH ANTARIKSA</button>
+        <button class="filter-btn" onclick="filterGallery('kuno', this)">ARSITEK & ILMUWAN KUNO</button>
+    </div>
+
+    <!-- Galeri Tokoh -->
+    <div class="gallery-grid" id="galleryContainer">
+        <!-- Data dirender dinamis via JavaScript -->
+    </div>
+
+    <!-- Overlay Detail -->
+    <div id="detailOverlay" onclick="closeOverlay(event)">
+        <div class="overlay-content" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeOverlayDirect()">X</button>
+            <div class="overlay-header">
+                <img id="ovImg" class="overlay-img" src="" alt="Tokoh">
+                <div class="overlay-titles">
+                    <h2 id="ovName">Nama Tokoh</h2>
+                    <div class="lifespan" id="ovLifespan">Tahun</div>
+                    <div class="field" id="ovField">Bidang</div>
+                </div>
+            </div>
+            <div class="info-section">
+                <h3>Biodata & Latar Belakang</h3>
+                <p id="ovBio">Biodata lengkap...</p>
+            </div>
+            <div class="info-section">
+                <h3>Penemuan & Jasa Terbesar</h3>
+                <p id="ovContribution">Jasa...</p>
+            </div>
+            <div class="info-section" id="quoteContainer" style="display:none;">
+                <h3>Kutipan Bersejarah</h3>
+                <div class="quote-box" id="ovQuote">Quote</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Arsip Edukasi Interaktif | Dikembangkan sebagai sarana penghormatan sejarah peradaban manusia.
+    </footer>
+
+    <script>
+        // Database Tokoh Diperluas dengan Kategori Antariksa & Kuno
+        const figures = [
+            // Kategori: Sains & Matematika
+            {
+                category: "sains",
+                name: "Isaac Newton",
+                lifespan: "1643 – 1727",
+                field: "Fisika & Matematika Klasik",
+                image: "https://upload.wikimedia.org/wikipedia/commons/3/39/GodfreyKneller-Newton1689.jpg",
+                bio: "Sir Isaac Newton adalah seorang ahli fisika, matematika, astronomi, dan filsuf alam Inggris. Karyanya 'Principia Mathematica' menjadi fondasi mekanika klasik.",
+                contribution: "Menemukan hukum gravitasi universal, merumuskan tiga hukum gerak Newton, serta co-inventor kalkulus.",
+                quote: "\"Jika saya melihat lebih jauh, itu karena saya berdiri di atas pundak raksasa.\""
+            },
+            {
+                category: "sains",
+                name: "Nikola Tesla",
+                lifespan: "1856 – 1943",
+                field: "Teknik Elektro & Fisika",
+                image: "https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.CG.jpg",
+                bio: "Nikola Tesla adalah seorang penemu, insinyur kelistrikan, dan fisikawan kelahiran Serbia-Amerika yang merancang sistem pasokan listrik arus bolak-balik (AC).",
+                contribution: "Menemukan sistem kelistrikan AC, kumparan Tesla (Tesla Coil), dan dasar teknologi komunikasi nirkabel.",
+                quote: "\"Biarkan masa depan yang berbicara, dan menilai setiap orang sesuai dengan pekerjaan dan pencapaian mereka.\""
+            },
+            {
+                category: "sains",
+                name: "Marie Curie",
+                lifespan: "1867 – 1934",
+                field: "Fisika & Kimia Nuklir",
+                image: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Marie_Curie_c._1920s.jpg",
+                bio: "Marie Curie adalah fisikawan dan kimiawan Polandia-Prancis yang memelopori penelitian radioaktivitas. Wanita pertama peraih Nobel di dua bidang berbeda.",
+                contribution: "Menemukan unsur Polonium & Radium, serta mengembangkan teori radioaktivitas dan unit sinar-X seluler.",
+                quote: "\"Jangan takut pada apa pun dalam hidup. Yang ada hanyalah memahami lebih banyak, agar kita tidak terlalu takut.\""
+            },
+            {
+                category: "sains",
+                name: "Albert Einstein",
+                lifespan: "1879 – 1955",
+                field: "Fisika Teoretis",
+                image: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Einstein_1921_by_F_Schmutzer_-_restoration.jpg",
+                bio: "Albert Einstein adalah fisikawan teoretis Jerman yang merumuskan teori relativitas dan mengubah cara pandang umat manusia terhadap ruang dan waktu.",
+                contribution: "Mengembangkan Teori Relativitas (Khusus & Umum), persamaan kesetaraan massa-energi (E=mc²).",
+                quote: "\"Imajinasi lebih penting daripada pengetahuan. Karena pengetahuan terbatas, sementara imajinasi merangkul seluruh dunia.\""
+            },
+            {
+                category: "sains",
+                name: "Alan Turing",
+                lifespan: "1912 – 1954",
+                field: "Ilmu Komputer & Kriptografi",
+                image: "https://upload.wikimedia.org/wikipedia/commons/a/a1/Alan_Turing_Aged_16.jpg",
+                bio: "Matematikawan dan kriptanalis Inggris yang diakui sebagai bapak ilmu komputer modern dan kecerdasan buatan (AI).",
+                contribution: "Menciptakan konsep Mesin Turing dan memecahkan kode Enigma Jerman Nazi di Perang Dunia II.",
+                quote: "\"Terkadang orang yang tidak dibayangkan siapa pun melakukan sesuatu yang tidak dapat dibayangkan oleh siapa pun.\""
+            },
+            {
+                category: "sains",
+                name: "Stephen Hawking",
+                lifespan: "1942 – 2018",
+                field: "Fisika Teoretis & Kosmologi",
+                image: "https://upload.wikimedia.org/wikipedia/commons/e/eb/Stephen_Hawking.jpg",
+                bio: "Fisikawan teoretis dan kosmolog Inggris yang meneliti lubang hitam dan gravitasi kuantum semasa hidupnya di Universitas Cambridge.",
+                contribution: "Mengembangkan teori radiasi lubang hitam (Hawking Radiation) dan mempopulerkan sains lewat buku 'A Brief History of Time'.",
+                quote: "\"Kecerdasan adalah kemampuan untuk beradaptasi terhadap perubahan.\""
+            },
+
+            // Kategori: Penjelajah Antariksa
+            {
+                category: "antariksa",
+                name: "Yuri Gagarin",
+                lifespan: "1934 – 1968",
+                field: "Kosmonot & Penerbang Antariksa",
+                image: "https://upload.wikimedia.org/wikipedia/commons/6/6f/Yuri_Gagarin_1961_raster.jpg",
+                bio: "Yuri Alekseyevich Gagarin adalah seorang kosmonot Uni Soviet yang mencatatkan sejarah sebagai manusia pertama yang berhasil pergi ke luar angkasa dan mengorbit Bumi.",
+                contribution: "Melakukan penerbangan bersejarah dengan pesawat Vostok 1 pada 12 April 1961, membuka era eksplorasi luar angkasa umat manusia.",
+                quote: "\"Mari kita berangkat! (Poyekhali!)\""
+            },
+            {
+                category: "antariksa",
+                name: "Neil Armstrong",
+                lifespan: "1930 – 2012",
+                field: "Astronot & Insinyur Penerbangan",
+                image: "https://upload.wikimedia.org/wikipedia/commons/0/0d/Neil_Armstrong_pose.jpg",
+                bio: "Neil Alden Armstrong adalah seorang astronot, pilot uji, dan insinyur penerbangan Amerika Serikat yang dikenang sebagai manusia pertama yang menjejakkan kaki di Bulan.",
+                contribution: "Memimpin misi Apollo 11 dan mendarat di Bulan pada 20 Juli 1969, mengucapkan kalimat legendaris: 'Satu langkah kecil bagi manusia, satu lompatan besar bagi umat manusia.'",
+                quote: "\"Itu adalah satu langkah kecil bagi manusia, satu lompatan besar bagi umat manusia.\""
+            },
+            {
+                category: "antariksa",
+                name: "Katherine Johnson",
+                lifespan: "1918 – 2020",
+                field: "Matematikawan NASA & Orbital",
+                image: "https://upload.wikimedia.org/wikipedia/commons/6/6d/Katherine_Johnson_1983.jpg",
+                bio: "Creola Katherine Johnson adalah matematikawan asal Amerika Serikat yang perhitungan mekanika orbitalnya di NASA sangat krusial bagi keberhasilan penerbangan luar angkasa berawak AS pertama.",
+                contribution: "Menghitung lintasan penerbangan Project Mercury (Alan Shepard & John Glenn) dan misi Apollo 11 ke Bulan.",
+                quote: "\"Kami selalu ingin tahu mengapa sesuatu terjadi, dan bagaimana cara memperbaikinya.\""
+            },
+
+            // Kategori: Arsitek & Ilmuwan Kuno
+            {
+                category: "kuno",
+                name: "Imhotep",
+                lifespan: "Sekitar abad ke-27 SM",
+                field: "Arsitek, Dokter & Filsuf Mesir Kuno",
+                image: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Imhotep_Louvre.jpg",
+                bio: "Imhotep adalah kanselir Firaun Djoser, seorang insinyur jenius dan arsitek agung pertama yang tercatat dalam sejarah peradaban manusia.",
+                contribution: "Merancang dan membangun Piramida Step (Piramida Tangga) di Saqqara, serta memelopori penggunaan batu dalam arsitektur monumental.",
+                quote: "\"Kebijaksanaan sejati dibangun di atas fondasi batu yang tahan terhadap ujian waktu.\""
+            },
+            {
+                category: "kuno",
+                name: "Archimedes",
+                lifespan: "c. 287 – c. 212 SM",
+                field: "Matematikawan, Fisikawan & Insinyur Yunani",
+                image: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Archimedes_%28Painting%29.jpg",
+                bio: "Archimedes dari Syracuse adalah seorang matematikawan, fisikawan, insinyur, dan astronom Yunani kuno yang dianggap sebagai salah satu ilmuwan terbesar di dunia antik.",
+                contribution: "Menemukan prinsip buoyancy (Hukum Archimedes), merancang sekrup Archimedes untuk irigasi, dan menghitung nilai π secara akurat.",
+                quote: "\"Berikan aku tempat bertumpu, dan aku akan menggerakkan bumi! (Eureka!)\""
+            },
+            {
+                category: "kuno",
+                name: "Ibn al-Haytham",
+                lifespan: "965 – 1040 M",
+                field: "Filsuf Alam & Pelopor Metode Ilmiah",
+                image: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Ibn_Al-Haytham_on_10000_Iraqi_Dinar_note.jpg",
+                bio: "Alhazen (Ibn al-Haytham) adalah ilmuwan Muslim asal Basra yang memelopori bidang optika, astronomi, dan metode eksperimental ilmiah modern.",
+                contribution: "Menulis 'Kitab al-Manazir' (Buku Optik), membuktikan bahwa cahaya masuk ke mata (bukan keluar dari mata), dan merintis metode ilmiah berbasis eksperimen.",
+                quote: "\"Pencari kebenaran bukanlah orang yang mempelajari tulisan orang lain dan mengikuti intuisi mereka, melainkan orang yang meragukan keduanya.\""
+            }
+        ];
+
+        const galleryContainer = document.getElementById('galleryContainer');
+
+        function renderGallery(filterCategory) {
+            galleryContainer.innerHTML = '';
+            
+            const filteredFigures = filterCategory === 'all' 
+                ? figures 
+                : figures.filter(f => f.category === filterCategory);
+
+            filteredFigures.forEach((fig) => {
+                // Cari index asli dari array utama figures
+                const originalIndex = figures.indexOf(fig);
+                const card = document.createElement('div');
+                card.className = 'figure-card';
+                card.onclick = () => openOverlay(originalIndex);
+                card.innerHTML = `
+                    <div class="figure-img-wrapper">
+                        <img src="${fig.image}" alt="${fig.name}">
+                    </div>
+                    <div class="figure-name">${fig.name}</div>
+                    <div class="figure-era">${fig.lifespan}</div>
+                `;
+                galleryContainer.appendChild(card);
+            });
+        }
+
+        // Fungsi Filter Tombol
+        function filterCategory(category, btnElement) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderGallery(category);
+        }
+
+        // Fungsi Buka Overlay
+        function openOverlay(index) {
+            const fig = figures[index];
+            document.getElementById('ovImg').src = fig.image;
+            document.getElementById('ovName').innerText = fig.name;
+            document.getElementById('ovLifespan').innerText = `Masa Hidup: ${fig.lifespan}`;
+            document.getElementById('ovField').innerText = `Bidang: ${fig.field}`;
+            document.getElementById('ovBio').innerText = fig.bio;
+            document.getElementById('ovContribution').innerText = fig.contribution;
+            
+            if (fig.quote) {
+                document.getElementById('quoteContainer').style.display = 'block';
+                document.getElementById('ovQuote').innerText = fig.quote;
+            } else {
+                document.getElementById('quoteContainer').style.display = 'none';
+            }
+
+            document.getElementById('detailOverlay').style.display = 'flex';
+        }
+
+        // Fungsi Tutup Overlay
+        function closeOverlay(event) {
+            document.getElementById('detailOverlay').style.display = 'none';
+        }
+        function closeOverlayDirect() {
+            document.getElementById('detailOverlay').style.display = 'none';
+        }
+
+        // Render awal tampilkan semua
+        renderGallery('all');
+    </script>
+</body>
+</html>
